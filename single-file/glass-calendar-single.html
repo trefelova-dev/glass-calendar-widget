@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Glassmorphism Calendar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        :root {
+            --accent-color: #0ea5e9; 
+            --accent-shadow: rgba(14, 165, 233, 0.4);
+            --bg-color: #0f172a;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: #ffffff;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .bg-blobs {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: #0f172a;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+
+        .blob-1 {
+            top: 10%; left: 20%;
+            width: 40vw; height: 40vw;
+            background: var(--accent-color);
+            transition: background 0.5s ease;
+        }
+
+        .blob-2 {
+            bottom: 10%; right: 10%;
+            width: 35vw; height: 35vw;
+            background: #8b5cf6;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, -50px) scale(1.1); }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease-out;
+            transform-style: preserve-3d;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+        .day-btn {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+        }
+
+        .day-btn:hover:not(:disabled):not(.day-active) {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .day-active {
+            background: var(--accent-color) !important;
+            color: #fff !important;
+            font-weight: 600;
+            box-shadow: 0 8px 20px -6px var(--accent-shadow);
+            transform: scale(1.05) translateZ(10px);
+            border-color: transparent !important;
+        }
+
+        .day-today::after {
+            content: '';
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 6px; height: 6px;
+            background: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .day-active.day-today::after {
+            background: #fff;
+        }
+        
+        .event-indicator {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 3px;
+        }
+
+        .event-dot {
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .day-active .event-dot {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .fade-enter { animation: fadeEnter 0.4s ease forwards; }
+        @keyframes fadeEnter {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-enter { animation: modalEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes modalEnter {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .theme-btn { transition: transform 0.2s; cursor: pointer; }
+        .theme-btn:hover { transform: scale(1.2); }
+
+        body.light-theme {
+            --bg-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        body.light-theme .bg-blobs { background: #f1f5f9; }
+        
+        body.light-theme .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-theme .text-white { color: #0f172a !important; }
+        body.light-theme .text-white\/80 { color: #1e293b !important; }
+        body.light-theme .text-white\/60 { color: #334155 !important; }
+        body.light-theme .text-white\/50 { color: #475569 !important; }
+        body.light-theme .text-white\/40 { color: #64748b !important; }
+        body.light-theme .text-white\/30 { color: #94a3b8 !important; }
+        body.light-theme .text-white\/20 { color: #cbd5e1 !important; }
+        body.light-theme .bg-white\/5 { background-color: rgba(0, 0, 0, 0.03) !important; }
+        body.light-theme .bg-white\/10 { background-color: rgba(0, 0, 0, 0.06) !important; }
+        body.light-theme .hover\:bg-white\/10:hover { background-color: rgba(0, 0, 0, 0.08) !important; }
+        body.light-theme .border-white\/10 { border-color: rgba(0, 0, 0, 0.1) !important; }
+        body.light-theme .border-white\/5 { border-color: rgba(0, 0, 0, 0.05) !important; }
+        body.light-theme .from-white { --tw-gradient-from: #0f172a var(--tw-gradient-from-position) !important; }
+        body.light-theme .to-white\/70 { --tw-gradient-to: rgba(15, 23, 42, 0.7) var(--tw-gradient-to-position) !important; }
+        body.light-theme .day-btn:hover:not(:disabled):not(.day-active) {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+        body.light-theme .event-dot { background: rgba(0, 0, 0, 0.3); }
+        body.light-theme .day-active .event-dot { background: rgba(255, 255, 255, 0.9); }
+        body.light-theme .backdrop-blur-md { background: rgba(255, 255, 255, 0.5) !important; }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: inherit;
+        }
+
+        .glass-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        body.light-theme .glass-input {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        body.light-theme .glass-input:focus {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: var(--accent-color);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="relative w-full max-w-5xl">
+        
+        <div class="absolute -top-12 right-0 flex items-center gap-4 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 z-10 fade-enter">
+            <button id="toggle-3d" class="text-white/50 hover:text-white transition-colors" title="Включить/Выключить 3D">
+                <i class="ph ph-cube text-lg"></i>
+            </button>
+            <button id="toggle-theme" class="text-white/50 hover:text-white transition-colors" title="Светлая/Темная тема">
+                <i class="ph ph-sun text-lg"></i>
+            </button>
+            <div class="w-px h-4 bg-white/20 mx-1"></div>
+            <span class="text-xs text-white/50 uppercase tracking-widest font-semibold">Акцент:</span>
+            <button class="theme-btn w-5 h-5 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)] border-2 border-white" data-color="#0ea5e9" data-shadow="rgba(14, 165, 233, 0.4)"></button>
+            <button class="theme-btn w-5 h-5 rounded-full bg-rose-500 border-2 border-transparent" data-color="#f43f5e" data-shadow="rgba(244, 63, 94, 0.4)"></button>
+            <button class="theme-btn w-5 h-5 rounded-full bg-emerald-500 border-2 border-transparent" data-color="#10b981" data-shadow="rgba(16, 185, 129, 0.4)"></button>
+            <button class="theme-btn w-5 h-5 rounded-full bg-amber-500 border-2 border-transparent" data-color="#f59e0b" data-shadow="rgba(245, 158, 11, 0.4)"></button>
+        </div>
+
+        <div id="calendar-card" class="glass-panel rounded-3xl flex flex-col md:flex-row overflow-hidden min-h-[500px]">
+            <div class="w-full md:w-3/5 p-6 md:p-10 flex flex-col relative z-10 border-b md:border-b-0 md:border-r border-white/10">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 id="month-display" class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Январь</h2>
+                        <p id="year-display" class="text-white/50 text-sm font-medium mt-1">2026</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="prev-month" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/5 transition-colors">
+                            <i class="ph ph-caret-left text-xl"></i>
+                        </button>
+                        <button id="next-month" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/5 transition-colors">
+                            <i class="ph ph-caret-right text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-7 gap-2 mb-4">
+                    <div class="text-center text-xs font-semibold text-white/40 uppercase tracking-wider">Пн</div>
+                    <div class="text-center text-xs font-semibold text-white/40 uppercase tracking-wider">Вт</div>
+                    <div class="text-center text-xs font-semibold text-white/40 uppercase tracking-wider">Ср</div>
+                    <div class="text-center text-xs font-semibold text-white/40 uppercase tracking-wider">Чт</div>
+                    <div class="text-center text-xs font-semibold text-white/40 uppercase tracking-wider">Пт</div>
+                    <div class="text-center text-xs font-semibold text-rose-400/60 uppercase tracking-wider">Сб</div>
+                    <div class="text-center text-xs font-semibold text-rose-400/60 uppercase tracking-wider">Вс</div>
+                </div>
+
+                <div id="calendar-grid" class="grid grid-cols-7 gap-2 flex-grow auto-rows-[1fr]">
+                </div>
+            </div>
+
+            <div class="w-full md:w-2/5 p-6 md:p-10 flex flex-col relative z-10 bg-gradient-to-b from-white/5 to-transparent">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold mb-1">Расписание</h3>
+                    <p id="selected-date-display" class="text-white/60 text-sm">Выберите дату</p>
+                </div>
+
+                <div id="events-container" class="flex-grow overflow-y-auto pr-2 space-y-4">
+                </div>
+                
+                <button id="btn-open-modal" class="mt-6 w-full py-3 rounded-xl flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 transition-all group cursor-pointer">
+                    <i class="ph ph-plus-circle text-xl text-[var(--accent-color)] group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium text-sm">Добавить событие</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="event-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <div id="modal-overlay" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity opacity-0 cursor-pointer"></div>
+        
+        <div class="glass-panel w-full max-w-md p-6 rounded-2xl relative z-10 opacity-0 transform translate-y-4 transition-all" id="modal-card">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Новое событие</h3>
+                <button id="btn-close-modal" class="text-white/50 hover:text-white transition-colors">
+                    <i class="ph ph-x text-xl"></i>
+                </button>
+            </div>
+
+            <form id="add-event-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-white/50 uppercase tracking-wider mb-1">Название</label>
+                    <input type="text" id="event-title" required placeholder="Например: Созвон с клиентом" 
+                           class="glass-input w-full px-4 py-3 rounded-xl text-sm transition-colors">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-white/50 uppercase tracking-wider mb-1">Начало</label>
+                        <input type="time" id="event-time" required value="10:00"
+                               class="glass-input w-full px-4 py-3 rounded-xl text-sm transition-colors custom-time-input">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-white/50 uppercase tracking-wider mb-1">Тип</label>
+                        <select id="event-type" class="glass-input w-full px-4 py-3 rounded-xl text-sm transition-colors appearance-none">
+                            <option class="text-black" value="work">Работа</option>
+                            <option class="text-black" value="call">Созвон</option>
+                            <option class="text-black" value="personal">Личное</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full mt-2 py-3 rounded-xl font-semibold text-white transition-transform hover:scale-[1.02] active:scale-95"
+                        style="background: var(--accent-color); box-shadow: 0 4px 15px -3px var(--accent-shadow);">
+                    Сохранить
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+            const monthNamesGenitive = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+            
+            let currentDate = new Date();
+            let currentMonth = currentDate.getMonth();
+            let currentYear = currentDate.getFullYear();
+            let selectedDate = new Date();
+
+            const mockEvents = {};
+            
+            const generateMockEvents = () => {
+                const eventTypes = [
+                    { title: "Встреча с командой", icon: "ph-users", color: "text-sky-400", bg: "bg-sky-400/10" },
+                    { title: "Дизайн ревью", icon: "ph-paint-brush", color: "text-purple-400", bg: "bg-purple-400/10" }
+                ];
+
+                for (let i = 0; i < 15; i++) {
+                    const rDay = Math.floor(Math.random() * 28) + 1;
+                    const rMonth = currentMonth;
+                    const key = `${currentYear}-${rMonth}-${rDay}`;
+                    if (!mockEvents[key]) mockEvents[key] = [];
+                    
+                    mockEvents[key].push({
+                        time: `10:00 - 11:00`,
+                        title: eventTypes[0].title,
+                        icon: eventTypes[0].icon,
+                        colorClass: eventTypes[0].color,
+                        bgClass: eventTypes[0].bg
+                    });
+                }
+            };
+            generateMockEvents();
+
+            const monthDisplay = document.getElementById('month-display');
+            const yearDisplay = document.getElementById('year-display');
+            const calendarGrid = document.getElementById('calendar-grid');
+            const selectedDateDisplay = document.getElementById('selected-date-display');
+            const eventsContainer = document.getElementById('events-container');
+
+            const renderCalendar = (month, year) => {
+                calendarGrid.innerHTML = '';
+                monthDisplay.innerText = monthNames[month];
+                yearDisplay.innerText = year;
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const startDay = firstDay === 0 ? 6 : firstDay - 1;
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const prevMonthDays = new Date(year, month, 0).getDate();
+                const today = new Date();
+                const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
+
+                for (let i = startDay - 1; i >= 0; i--) {
+                    const btn = document.createElement('button');
+                    btn.className = 'day-btn rounded-xl flex flex-col items-center justify-center text-white/20 text-sm font-medium h-10 sm:h-12 w-full cursor-not-allowed';
+                    btn.innerText = prevMonthDays - i;
+                    btn.disabled = true;
+                    calendarGrid.appendChild(btn);
+                }
+
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = 'day-btn rounded-xl flex flex-col items-center justify-center text-white/80 text-sm font-medium h-10 sm:h-12 w-full';
+                    btn.innerText = i;
+                    
+                    const dateKey = `${year}-${month}-${i}`;
+                    
+                    if (isCurrentMonth && i === today.getDate()) {
+                        btn.classList.add('day-today', 'text-white');
+                    }
+
+                    if (selectedDate && selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
+                        btn.classList.add('day-active');
+                    }
+
+                    if (mockEvents[dateKey] && mockEvents[dateKey].length > 0) {
+                        const indicatorWrapper = document.createElement('div');
+                        indicatorWrapper.className = 'event-indicator';
+                        const dotsCount = Math.min(mockEvents[dateKey].length, 3);
+                        for(let d = 0; d < dotsCount; d++) {
+                            const dot = document.createElement('div');
+                            dot.className = 'event-dot';
+                            indicatorWrapper.appendChild(dot);
+                        }
+                        btn.appendChild(indicatorWrapper);
+                    }
+
+                    btn.addEventListener('click', () => {
+                        selectedDate = new Date(year, month, i);
+                        document.querySelectorAll('.day-active').forEach(el => el.classList.remove('day-active'));
+                        btn.classList.add('day-active');
+                        renderEvents();
+                    });
+
+                    btn.style.animation = `fadeEnter 0.3s ease forwards ${i * 0.01}s`;
+                    btn.style.opacity = '0';
+                    calendarGrid.appendChild(btn);
+                }
+
+                const totalCells = calendarGrid.children.length;
+                for (let i = 1; i <= 42 - totalCells; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = 'day-btn rounded-xl flex flex-col items-center justify-center text-white/20 text-sm font-medium h-10 sm:h-12 w-full cursor-not-allowed';
+                    btn.innerText = i;
+                    btn.disabled = true;
+                    calendarGrid.appendChild(btn);
+                }
+            };
+
+            const renderEvents = () => {
+                if (!selectedDate) return;
+                const day = selectedDate.getDate();
+                const month = selectedDate.getMonth();
+                const year = selectedDate.getFullYear();
+                
+                selectedDateDisplay.innerText = `${day} ${monthNamesGenitive[month]}, ${year}`;
+                eventsContainer.innerHTML = '';
+                
+                const dateKey = `${year}-${month}-${day}`;
+                const dayEvents = mockEvents[dateKey];
+
+                if (!dayEvents || dayEvents.length === 0) {
+                    eventsContainer.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-40 text-white/30 fade-enter">
+                            <i class="ph ph-calendar-blank text-4xl mb-2"></i>
+                            <p class="text-sm">Свободный день</p>
+                        </div>`;
+                    return;
+                }
+
+                dayEvents.forEach((evt, index) => {
+                    const eventEl = document.createElement('div');
+                    eventEl.className = `p-4 rounded-2xl ${evt.bgClass} border border-white/5 flex gap-4 items-center fade-enter`;
+                    eventEl.style.animationDelay = `${index * 0.05}s`;
+                    eventEl.style.opacity = '0';
+                    eventEl.innerHTML = `
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                            <i class="ph ${evt.icon} text-xl ${evt.colorClass}"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="font-medium text-white text-sm sm:text-base">${evt.title}</h4>
+                            <p class="text-xs text-white/50 flex items-center gap-1 mt-1">
+                                <i class="ph ph-clock text-white/40"></i> ${evt.time}
+                            </p>
+                        </div>
+                    `;
+                    eventsContainer.appendChild(eventEl);
+                });
+            };
+
+            const modal = document.getElementById('event-modal');
+            const overlay = document.getElementById('modal-overlay');
+            const modalCard = document.getElementById('modal-card');
+            const btnOpenModal = document.getElementById('btn-open-modal');
+            const btnCloseModal = document.getElementById('btn-close-modal');
+            const addEventForm = document.getElementById('add-event-form');
+
+            const openModal = () => {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    modalCard.classList.remove('opacity-0', 'translate-y-4');
+                }, 10);
+            };
+
+            const closeModal = () => {
+                overlay.classList.add('opacity-0');
+                modalCard.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    addEventForm.reset();
+                }, 300);
+            };
+
+            btnOpenModal.addEventListener('click', openModal);
+            btnCloseModal.addEventListener('click', closeModal);
+            overlay.addEventListener('click', closeModal);
+
+            addEventForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const title = document.getElementById('event-title').value;
+                const time = document.getElementById('event-time').value;
+                const type = document.getElementById('event-type').value;
+                
+                const typeStyles = {
+                    work: { icon: 'ph-briefcase', color: 'text-sky-400', bg: 'bg-sky-400/10' },
+                    call: { icon: 'ph-phone-call', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+                    personal: { icon: 'ph-person', color: 'text-purple-400', bg: 'bg-purple-400/10' }
+                };
+                const style = typeStyles[type];
+
+                const day = selectedDate.getDate();
+                const month = selectedDate.getMonth();
+                const year = selectedDate.getFullYear();
+                const dateKey = `${year}-${month}-${day}`;
+
+                if (!mockEvents[dateKey]) mockEvents[dateKey] = [];
+                
+                mockEvents[dateKey].push({
+                    title: title,
+                    time: `${time} - ${parseInt(time.split(':')[0])+1}:00`,
+                    icon: style.icon,
+                    colorClass: style.color,
+                    bgClass: style.bg
+                });
+
+                closeModal();
+                
+                renderCalendar(currentMonth, currentYear);
+                renderEvents();
+            });
+
+            document.getElementById('prev-month').addEventListener('click', () => { currentMonth--; if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentMonth, currentYear); });
+            document.getElementById('next-month').addEventListener('click', () => { currentMonth++; if(currentMonth>11){currentMonth=0;currentYear++;} renderCalendar(currentMonth, currentYear); });
+            
+            const themeBtns = document.querySelectorAll('.theme-btn');
+            themeBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.documentElement.style.setProperty('--accent-color', e.target.getAttribute('data-color'));
+                    document.documentElement.style.setProperty('--accent-shadow', e.target.getAttribute('data-shadow'));
+                    themeBtns.forEach(b => { b.classList.remove('border-white'); b.classList.add('border-transparent'); });
+                    e.target.classList.remove('border-transparent'); e.target.classList.add('border-white');
+                });
+            });
+
+            let isLightMode = false;
+            document.getElementById('toggle-theme').addEventListener('click', (e) => {
+                isLightMode = !isLightMode;
+                document.body.classList.toggle('light-theme', isLightMode);
+                e.currentTarget.innerHTML = isLightMode ? '<i class="ph ph-moon text-lg"></i>' : '<i class="ph ph-sun text-lg"></i>';
+            });
+
+            let is3DEnabled = true;
+            const card = document.getElementById('calendar-card');
+            const toggle3d = document.getElementById('toggle-3d');
+            toggle3d.addEventListener('click', () => {
+                is3DEnabled = !is3DEnabled;
+                card.style.transform = `perspective(1000px) rotateY(0deg) rotateX(0deg)`;
+                toggle3d.classList.toggle('text-white/50'); toggle3d.classList.toggle('text-white/20');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!is3DEnabled) return;
+                const xAxis = (window.innerWidth / 2 - e.pageX) / 120;
+                const yAxis = (window.innerHeight / 2 - e.pageY) / 120;
+                card.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            });
+            document.addEventListener('mouseleave', () => {
+                if(is3DEnabled) card.style.transform = `perspective(1000px) rotateY(0deg) rotateX(0deg)`;
+            });
+
+            renderCalendar(currentMonth, currentYear);
+            renderEvents();
+        });
+    </script>
+</body>
+</html>
