@@ -13,28 +13,32 @@
 
     <link rel="stylesheet" href="./style.css">
 </head>
-<body class="p-4 sm:p-8">
+<body class="p-4 sm:p-8 py-8 sm:py-12">
 
     <div class="bg-blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
     </div>
 
-    <div class="relative w-full max-w-5xl">
+    <div class="relative w-full max-w-5xl my-auto">
         
-        <div class="absolute -top-12 right-0 flex items-center gap-4 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 z-10 fade-enter">
-            <button id="toggle-3d" class="text-white/50 hover:text-white transition-colors" title="Включить/Выключить 3D">
-                <i class="ph ph-cube text-lg"></i>
-            </button>
-            <button id="toggle-theme" class="text-white/50 hover:text-white transition-colors" title="Светлая/Темная тема">
-                <i class="ph ph-sun text-lg"></i>
-            </button>
+        <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 bg-white/5 backdrop-blur-md px-4 py-2 rounded-2xl sm:rounded-full border border-white/10 z-10 fade-enter mb-4 md:mb-0 md:absolute md:-top-12 md:right-0">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="toggle-3d" class="text-white/50 hover:text-white transition-colors" title="Включить/Выключить 3D">
+                    <i class="ph ph-cube text-lg"></i>
+                </button>
+                <button id="toggle-theme" class="text-white/50 hover:text-white transition-colors" title="Светлая/Темная тема">
+                    <i class="ph ph-sun text-lg"></i>
+                </button>
+            </div>
             <div class="w-px h-4 bg-white/20 mx-1"></div>
-            <span class="text-xs text-white/50 uppercase tracking-widest font-semibold">Акцент:</span>
-            <button class="theme-btn w-5 h-5 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)] border-2 border-white" data-color="#0ea5e9" data-shadow="rgba(14, 165, 233, 0.4)"></button>
-            <button class="theme-btn w-5 h-5 rounded-full bg-rose-500 border-2 border-transparent" data-color="#f43f5e" data-shadow="rgba(244, 63, 94, 0.4)"></button>
-            <button class="theme-btn w-5 h-5 rounded-full bg-emerald-500 border-2 border-transparent" data-color="#10b981" data-shadow="rgba(16, 185, 129, 0.4)"></button>
-            <button class="theme-btn w-5 h-5 rounded-full bg-amber-500 border-2 border-transparent" data-color="#f59e0b" data-shadow="rgba(245, 158, 11, 0.4)"></button>
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <span class="text-[10px] sm:text-xs text-white/50 uppercase tracking-widest font-semibold">Акцент:</span>
+                <button class="theme-btn w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)] border-2 border-white" data-color="#0ea5e9" data-shadow="rgba(14, 165, 233, 0.4)"></button>
+                <button class="theme-btn w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-rose-500 border-2 border-transparent" data-color="#f43f5e" data-shadow="rgba(244, 63, 94, 0.4)"></button>
+                <button class="theme-btn w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-500 border-2 border-transparent" data-color="#10b981" data-shadow="rgba(16, 185, 129, 0.4)"></button>
+                <button class="theme-btn w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-amber-500 border-2 border-transparent" data-color="#f59e0b" data-shadow="rgba(245, 158, 11, 0.4)"></button>
+            </div>
         </div>
 
         <div id="calendar-card" class="glass-panel rounded-3xl flex flex-col md:flex-row overflow-hidden min-h-[500px]">
